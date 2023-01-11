@@ -3,7 +3,7 @@
 echo "Updating Yum...."
 sudo yum -y update
 
-read -p "Choose Your Options Press 1 to setup prometheous and grafana Press 2 to See Docker Images Press 0 to exit" option
+read -p "Choose Your Options Press 1 to setup prometheous and grafana Press 2 to setup Prometheous and GrafanaSee with UI & Dashboard Press 0 to exit" option
 
 if [ $option == 1 ]
 then
@@ -16,21 +16,19 @@ then
   kubectl create -f manifests/
 elif [ $option == 2 ]
 then
-   docker images
-elif [ $option == 3 ]
-then
-   echo "Running Container with default prefernces"
-   source default_configurations.txt
-    echo "machine name = $machine_name"
-    echo "container = $container_name"
-    echo "image = $image_name"
-    echo "app name = $app_name"
-    echo "ports = $ports"
-    echo ""
-elif [ $option == 4 ]
-then
-    read -p "What is the name of your docker-machine [default]? " machine_name
-    sed -i "s/TestMachine/$machine_name/" user_configurations.txt
+  echo "Accessing Prometheus UI and Grafana dashboard using NodePort" 
+  git clone https://github.com/prometheus-operator/kube-prometheus.git
+  cd kube-prometheus
+  echo "Creating monitoring namespace, CustomResourceDefinitions & operator pod"
+  kubectl create -f manifests/setup
+  kubectl get ns monitoring
+  echo "Deploy Prometheus monitoring stack"
+  kubectl create -f manifests/
+  echo " Patching Nodeport service with Prometheous "
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort"}}'
+  echo " Patching Nodeport service with Grafana"
+  kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort"}}'
+  kubectl -n monitoring get svc  | grep NodePort
 
 else
     echo "exiting"
