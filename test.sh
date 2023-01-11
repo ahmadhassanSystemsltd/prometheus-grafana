@@ -9,3 +9,7 @@ then
 elif [ $option == 2 ]
 then
    docker images
+   
+else
+    echo "exiting"
+fi
