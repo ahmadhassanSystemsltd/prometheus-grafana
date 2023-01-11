@@ -5,10 +5,10 @@ read -p "Choose Your Options Press 1 to see running containers Press 2 to See Do
 
 if [ $option == 1 ]
 then
-   docker ps
+   sudo docker ps
 elif [ $option == 2 ]
 then
-   docker images
+   sudo docker images
    
 else
     echo "exiting"
