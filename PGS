@@ -7,13 +7,16 @@ read -p "Choose Your Options Press 1 to setup prometheous Press 2 to setup Grafa
 
 if [ $option == 1 ]
 then
-  git clone https://github.com/prometheus-operator/kube-prometheus.git
-  cd kube-prometheus
+  git clone https://github.com/ahmadhassanSystemsltd/prometheous-setup.git
   echo "Creating monitoring namespace, CustomResourceDefinitions & operator pod"
-  kubectl create -f manifests/setup
+  kubectl create -f prometheous-setup/setup
   kubectl get ns monitoring
   echo "Deploy Prometheus monitoring stack"
-  kubectl create -f manifests/
+  kubectl create -f prometheous-setup/
+  kubectl get svc -n monitoring
+  echo " Patching Nodeport service with Prometheous "
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort"}}'
+  kubectl -n monitoring get svc  | grep NodePort
 elif [ $option == 2 ]
 then
   echo "Accessing Grafana dashboard using NodePort" 
@@ -23,7 +26,8 @@ then
   kubectl get ns monitoring
   echo "Deploy Prometheus monitoring stack"
   kubectl create -f grafana-setup/
-  echo " Patching Nodeport service with Prometheous "
+  kubectl get svc -n monitoring
+  echo " Patching Nodeport service with Grafana "
   kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort"}}'
   kubectl -n monitoring get svc  | grep NodePort
 elif [ $option == 3 ]
