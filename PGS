@@ -3,7 +3,7 @@
 echo "Updating Yum...."
 sudo yum -y update
 
-read -p "Choose Your Options Press 1 to setup prometheous Press 2 to setup GrafanaSee Press 3 to setup both  0 to exit" option
+read -p "Choose Your Options Press 1 to setup prometheous Press 2 to setup Grafana Press 3 to setup both  0 to exit" option
 
 if [ $option == 1 ]
 then
@@ -26,7 +26,6 @@ then
   echo " Patching Nodeport service with Prometheous "
   kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort"}}'
   kubectl -n monitoring get svc  | grep NodePort
-
 elif [ $option == 3 ]
 then
   echo "Accessing Prometheus UI and Grafana dashboard using NodePort" 
