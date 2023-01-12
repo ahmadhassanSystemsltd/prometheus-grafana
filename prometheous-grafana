@@ -38,7 +38,9 @@ then
   kubectl -n monitoring get svc  | grep NodePort
 elif [ $option == 2 ]
 then
-  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort" "value":, ""}}'
+  echo "enter port number:"
+  read $number
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort" "value":, "$number"}}'
 
 else
     echo "exiting"
