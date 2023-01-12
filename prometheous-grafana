@@ -24,11 +24,21 @@ then
   kubectl get ns monitoring
   echo "Deploy Prometheus monitoring stack"
   kubectl create -f manifests/
+  echo "setup successfully"
+  echo "all pods are running"
+  kubectl get po -n monitoring
+  
+  read -p "Choose Your Options Press 1 to patch prometheous & grafana with service nodeport Press 2 to patch Prometheous & Grafana with specific port of nodeport (30000-32767) Press 0 to exit" option
+if [ $option == 1 ]
+then  
   echo " Patching Nodeport service with Prometheous "
   kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort"}}'
   echo " Patching Nodeport service with Grafana"
   kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort"}}'
   kubectl -n monitoring get svc  | grep NodePort
+elif [ $option == 2 ]
+then
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort" "value":, ""}}'
 
 else
     echo "exiting"
