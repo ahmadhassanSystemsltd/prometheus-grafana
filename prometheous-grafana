@@ -14,9 +14,17 @@ then
   kubectl get ns monitoring
   echo "Deploy Prometheus monitoring stack"
   kubectl create -f manifests/
+  echo "all pods are running"
+  kubectl get po -n monitoring
+  echo " Patching Nodeport service with Prometheous "
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort"}}'
+  echo " Patching Nodeport service with Grafana"
+  kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort"}}'
+  kubectl -n monitoring get svc  | grep NodePort
+  
 elif [ $option == 2 ]
 then
-  echo "Accessing Prometheus UI and Grafana dashboard using NodePort" 
+  echo "Accessing Prometheus UI and Grafana dashboard using fixed port NodePort" 
   git clone https://github.com/prometheus-operator/kube-prometheus.git
   cd kube-prometheus
   echo "Creating monitoring namespace, CustomResourceDefinitions & operator pod"
@@ -27,20 +35,13 @@ then
   echo "setup successfully"
   echo "all pods are running"
   kubectl get po -n monitoring
-  
-  read -p "Choose Your Options Press 1 to patch prometheous & grafana with service nodeport Press 2 to patch Prometheous & Grafana with specific port of nodeport Press 0 to exit" option
-if [ $option == 1 ]
-then  
-  echo " Patching Nodeport service with Prometheous "
-  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort"}}'
-  echo " Patching Nodeport service with Grafana"
-  kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort"}}'
-  kubectl -n monitoring get svc  | grep NodePort
-elif [ $option == 2 ]
-then
-  echo "enter port number between 30000-32767:"
+  echo "enter port number between 30000-32767: for patching service nodeport fixed port"
   read $number
-  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort" "value":, "$number"}}'
+  echo " Patching Nodeport service with Prometheous " $number 
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort" "value":, "$number"} "ports": {nodePort: $number}}'
+  echo " Patching Nodeport service with Grafana"
+  kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort" "value":, "$number"} "ports": {nodePort: $number}}'
+  kubectl -n monitoring get svc  | grep NodePort
 
 else
     echo "exiting"
