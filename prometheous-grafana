@@ -38,7 +38,7 @@ then
   echo "enter port number between 30000-32767: for patching service nodeport fixed port"
   read number
   echo -e "${GREEN_BG_BOLD}Patching Nodeport service with Prometheous port" $number
-  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort",  "NodePort": "number"}}'
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"ports": [{"port": "number", "nodePort": "number"}]}}'
   echo " Patching Nodeport service with Grafana"
   kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort" "," "NodePort": "number"}}'
   kubectl -n monitoring get svc  | grep NodePort
