@@ -35,14 +35,16 @@ then
   echo "setup successfully"
   echo "all pods are running"
   kubectl get po -n monitoring
-  echo "enter port number between 30000-32767: for patching service nodeport fixed port"
+  echo "enter port number between 30000-32767: for patching service nodeport fixed port with prometheous"
   read number
   echo -e "${GREEN_BG_BOLD}Patching Nodeport service with Prometheous port" $number
-  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"ports": [{"port": "number", "nodePort": "number"}]}}'
-  echo " Patching Nodeport service with Grafana"
-  kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort" "," "NodePort": "number"}}'
+  kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type":"NodePort","ports":[{"port":80,"nodePort":'$number', "name": "http" }]}}'
   kubectl -n monitoring get svc  | grep NodePort
-
-else
-    echo "exiting"
+  echo "enter port number between 30000-32767: for patching service nodeport fixed port with grafana"
+  read number1
+  echo -e "${GREEN_BG_BOLD}Patching Nodeport service with Prometheous port" $number1
+  echo " Patching Nodeport service with Grafana"
+  kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type":"NodePort","ports":[{"port":80,"nodePort":'$number1', "name": "https" }]}}'
+  kubectl -n monitoring get svc grafana  | grep NodePort
 fi
+
