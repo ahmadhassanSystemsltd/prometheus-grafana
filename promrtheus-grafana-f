@@ -1,0 +1,19 @@
+#!/bin/bash
+
+echo "Updating Yum...."
+sudo yum -y update
+
+git clone https://github.com/prometheus-operator/kube-prometheus.git
+cd kube-prometheus
+echo "Creating monitoring namespace, CustomResourceDefinitions & operator pod"
+kubectl create -f manifests/setup
+kubectl get ns monitoring
+echo "Deploy Prometheus monitoring stack"
+kubectl create -f manifests/
+echo "all pods are running"
+kubectl get po -n monitoring
+echo " Patching Nodeport service with Prometheous "
+kubectl --namespace monitoring patch svc prometheus-k8s -p '{"spec": {"type": "NodePort"}}'
+echo " Patching Nodeport service with Grafana"
+kubectl --namespace monitoring patch svc grafana -p '{"spec": {"type": "NodePort"}}'
+kubectl -n monitoring get svc  | grep NodePort
